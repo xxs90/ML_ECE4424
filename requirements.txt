@@ -1,4 +1,0 @@
-numpy
-quadprog
-matplotlib
-scipy
