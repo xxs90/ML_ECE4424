@@ -43,36 +43,23 @@ class CustomKMeans():
         #  ====================== TODO: IMPLEMENT KMEANS ======================= 
 
         #  while (not converged): # psuedocode - up to you to implement stopping criterion
-        clusters = np.array(np.zeros((n, 2)))
-        cluster_update = True
 
-        while cluster_update == True:
-            cluster_update = False
+        self.labels_ = [random.randint(0, self.k_ - 1) for i in range(n)]  # Update
+        self.inertia_ = np.sum(np.arange(n))  # Update
+        print(len(self.labels_))
+        distance = float("inf")
+        dist = 0
+        # print(self.centroids.values[0, :])
+        # print(self.data.values[0, :])
+        for j in range(self.k_):
+            for i in range(17):
+                dist += np.sum(np.square(self.centroids.values[j, :][i] - self.data.values[j, :][i]))
+                # print(i, dist)
+            print(dist)
 
-            for i in range(n):
-                distance = float("inf")
-                index = 0
-
-                for j in range(self.k_):
-                    dist = np.sqrt(np.sum((self.centroids.values[j, :] - data.values[i, :]) ** 2))
-
-                    if dist < distance:
-                        distance = dist
-                        clusters[i, 1] = distance
-                        index = j
-
-                if clusters[i, 0] != index:
-                    clusters[i, 0] = index
-                    cluster_update = True
-
-            for a in range(self.k_):
-                cluster_index = np.nonzero(clusters[:, 0] == a)
-                datapoint = data.values[cluster_index]
-                self.centroids.values[j, :] = np.mean(datapoint, axis=0)
-
-        self.labels_ = [clusters[i, 0] for i in range(n)]  # Update
-        self.inertia_ = np.sum(clusters[:, 1])  # Update
-
+            if dist < distance:
+                distance = dist
+                print("pick", distance)
 
         # show data & centroids at each iteration when testing performance
         if plot_steps:

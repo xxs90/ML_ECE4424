@@ -2,21 +2,21 @@
 #  HW 4: Unsupervised Learning, K-Means Clustering
 #  CS 4824 / ECE 4484, Spring '21
 #  Written by Matt Harrington, Haider Ali
-#  Name: Guanang Su
-#  VT email id: guanang
 #  =========================================================
 
 # Standard imports
 import random
-import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 
-class CustomKMeans():
+def euclDistance(a, b):
+    return np.sqrt(sum((b - a) ** 2))
 
+
+class CustomKMeans():
     # Initialize all attributes
     def __init__(self, k):
         self.k_ = k  # Number of clusters
@@ -40,39 +40,42 @@ class CustomKMeans():
         self.centroids.index = np.arange(self.k_)
 
         #  =====================================================================
+        clusterAssignment = np.array(np.zeros((n, 2)))
+        # the first col determine the sample's cluster,
+        # second col determine the error or distance between the sample and centroids
+        clusterChanged = True
+
+        while clusterChanged:
+            clusterChanged = False
+            # for each sample
+            for i in range(n):
+                minDis = 100000.0
+                minIndex = 0
+                # for each centroid
+                # find the centroid which is closest
+                for j in range(self.k_):
+                    distance = euclDistance(self.centroids.values[j, :], data.values[i, :])
+                    if distance < minDis:
+                        minDis = distance
+                        clusterAssignment[i, 1] = minDis
+                        minIndex = j
+
+                # update the cluster
+                if clusterAssignment[i, 0] != minIndex:
+                    clusterChanged = True
+                    clusterAssignment[i, 0] = minIndex
+
+            # update the centroids
+            for j in range(self.k_):
+                cluster_index = np.nonzero(clusterAssignment[:, 0] == j)
+                point_in_cluster = data.values[cluster_index]
+                self.centroids.values[j, :] = np.mean(point_in_cluster, axis=0)
+
         #  ====================== TODO: IMPLEMENT KMEANS ======================= 
 
         #  while (not converged): # psuedocode - up to you to implement stopping criterion
-        clusters = np.array(np.zeros((n, 2)))
-        cluster_update = True
-
-        while cluster_update == True:
-            cluster_update = False
-
-            for i in range(n):
-                distance = float("inf")
-                index = 0
-
-                for j in range(self.k_):
-                    dist = np.sqrt(np.sum((self.centroids.values[j, :] - data.values[i, :]) ** 2))
-
-                    if dist < distance:
-                        distance = dist
-                        clusters[i, 1] = distance
-                        index = j
-
-                if clusters[i, 0] != index:
-                    clusters[i, 0] = index
-                    cluster_update = True
-
-            for a in range(self.k_):
-                cluster_index = np.nonzero(clusters[:, 0] == a)
-                datapoint = data.values[cluster_index]
-                self.centroids.values[j, :] = np.mean(datapoint, axis=0)
-
-        self.labels_ = [clusters[i, 0] for i in range(n)]  # Update
-        self.inertia_ = np.sum(clusters[:, 1])  # Update
-
+        self.labels_ = [clusterAssignment[i, 0] for i in range(n)]  # update the cluster to labels
+        self.inertia_ = np.sum(clusterAssignment[:, 1]) # Update the inertia
 
         # show data & centroids at each iteration when testing performance
         if plot_steps:
@@ -81,26 +84,6 @@ class CustomKMeans():
         #  =====================================================================
 
         return self
-
-#     closest_centroid(self.centriods, data)
-#
-#     # show data & centroids at each iteration when testing performance
-#     if plot_steps:
-#         self.plot_state()
-#         self.iteration += 1
-#     #  =====================================================================
-#
-#     return self
-#
-#
-# def closest_centroid(ic, X):
-#     assigned_centroid = []
-#     for i in X:
-#         distance = []
-#         for j in ic:
-#             dist = sum((j, j) ** 2) * 0.5
-#             distance.append(dist)
-#         assigned_centroid.append(np.argmin(distance))
 
     # Plot projection of data and centroids in 2D
     def plot_state(self):
